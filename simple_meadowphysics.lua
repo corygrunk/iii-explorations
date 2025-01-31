@@ -1,5 +1,9 @@
 print("simple meadowphysics")
 
+-- change this to toggle clock input:
+midi_clock_in = true
+ticks = 0
+
 -- C Dorian scale: C D Eb F G A Bb C
 local notes = {60, 62, 63, 65, 67, 69, 70, 72}
 local patterns = {}
@@ -60,5 +64,18 @@ function redraw()
   grid_refresh()
 end
 
-metro_set(1, 150, -1)
+midi_rx = function(d1,d2,d3,d4)
+	if d1==8 and d2==240 then
+		ticks = ((ticks + 1) % 12)
+		if ticks == 0 and midi_clock_in then tick() end
+	else
+		ps("midi_rx %d %d %d %d",d1,d2,d3,d4)
+	end
+end
+
+if not midi_clock_in then
+	-- 150ms per step
+	metro_set(1, 150)
+end
+
 redraw()
